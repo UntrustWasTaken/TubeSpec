@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Component Specifications</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    .specs p {
+      margin: 0.3rem 0;
+    }
+    .back-link {
+      margin-top: 1rem;
+      display: inline-block;
+      text-decoration: none;
+      color: #0077cc;
+    }
+    a.value-link {
+      color: #0077cc;
+      text-decoration: none;
+    }
+    a.value-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-link">&larr; Back to Search</a>
+  <h1 id="compName">Loading...</h1>
+  <div class="specs" id="specsContainer"></div>
+
+  <script>
+    // --- Helper: Get URL parameter ---
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    // --- Units for common fields ---
+    const units = {
+      res: "lp/mm",
+      diameter: "mm",
+      sens: "µA/lm",
+      sens830: "µA/lm",
+      sens880: "µA/lm",
+      ebi: "µA/cm²"
+    };
+
+    // --- Known valid pages on NV-Intl ---
+    const validManufacturers = [
+      "ITT", "Elbit", "EEV", "L3Harris", "Ekran", "Katod", "Photonis", "Harder Digital"
+    ];
+
+    const validFormats = [
+      "MX10130", "MX10160", "MX11769", "MX9644", "MX9916", "MX10130A", "MX10160A", "EP33", "P8079HP", "P8304BY", "V-8", "XX1306"
+    ];
+
+    const compId = getQueryParam('id');
+
+    if (!compId) {
+      document.getElementById('compName').textContent = 'Component ID not specified.';
+    } else {
+      fetch('data/components.json')
+        .then(response => response.json())
+        .then(data => {
+          const comp = data.find(c =>
+            (c.id && c.id.toString() === compId) ||
+            (c.name && c.name.toLowerCase() === compId.toLowerCase())
+          );
+
+          if (!comp) {
+            document.getElementById('compName').textContent = 'Component not found.';
+            return;
+          }
+
+          document.getElementById('compName').textContent = comp.name;
+          const container = document.getElementById('specsContainer');
+
+          for (const [key, value] of Object.entries(comp)) {
+            if (key === 'id') continue;
+
+            const p = document.createElement('p');
+            const formattedKey = key.replace(/([A-Z])/g, ' $1')
+                                    .replace(/^./, str => str.toUpperCase());
+
+            let displayValue = value;
+
+            // Apply units
+            if (units[key] && value !== null && value !== undefined && value !== "") {
+              displayValue += ` ${units[key]}`;
+            }
+
+            // Only link if page exists in whitelist
+            if (key === 'format' && validFormats.includes(value)) {
+              const link = `https://nv-intl.com/index.php/${value.replace("MX", "MX-")}`;
+              displayValue = `<a class="value-link" href="${link}" target="_blank" rel="noopener noreferrer">${value}</a>`;
+            }
+
+            if (key === 'manufacturer' && validManufacturers.includes(value)) {
+              const link = `https://nv-intl.com/index.php/${encodeURIComponent(value)}`;
+              displayValue = `<a class="value-link" href="${link}" target="_blank" rel="noopener noreferrer">${value}</a>`;
+            }
+
+            p.innerHTML = `<strong>${formattedKey}:</strong> ${displayValue}`;
+            container.appendChild(p);
+          }
+        })
+        .catch(err => {
+          document.getElementById('compName').textContent = 'Error loading data.';
+          console.error(err);
+        });
+    }
+  </script>
+</body>
+</html>

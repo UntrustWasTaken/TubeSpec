@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IIT Search</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Tube Search</h1>
+
+  <input type="text" id="searchBox" placeholder="Search by name..." />
+
+  <details>
+    <summary><strong>Filters</strong></summary>
+    <div class="filter-group">
+      <label>Gain:</label>
+      <input type="number" id="gainMin" placeholder="Min" step="any" />
+      <input type="number" id="gainMax" placeholder="Max" step="any" />
+
+      <label>SNR:</label>
+      <input type="number" id="snrMin" placeholder="Min" step="any" />
+      <input type="number" id="snrMax" placeholder="Max" step="any" />
+
+      <label>Resolution:</label>
+      <input type="number" id="resMin" placeholder="Min" step="any" />
+      <input type="number" id="resMax" placeholder="Max" step="any" />
+
+      <label>Diameter:</label>
+      <input type="number" id="diaMin" placeholder="Min" step="any" />
+      <input type="number" id="diaMax" placeholder="Max" step="any" />
+
+      <label>Generation:</label>
+      <input type="number" id="genMin" placeholder="Min (0)" min="0" max="3" step="1" />
+      <input type="number" id="genMax" placeholder="Max (3)" min="0" max="3" step="1" />
+
+      <label>Manufacturer:</label>
+      <select id="manufacturerFilter">
+        <option value="">All</option>
+      </select>
+
+      <label>Inverting:</label>
+      <select id="invertingFilter">
+        <option value="">All</option>
+        <option value="inverting">Inverting</option>
+        <option value="non inverting">Non inverting</option>
+      </select>
+
+      <div class="filter-buttons">
+        <button onclick="applyFilters()">Apply Filters</button>
+        <button onclick="clearFilters()">Clear</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- Dynamic counter -->
+  <div id="countContainer" style="margin: 10px 0; font-weight: bold;"></div>
+
+  <div id="results"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
