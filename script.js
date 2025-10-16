@@ -152,3 +152,107 @@ function clearFilters() {
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+let chartInstance = null;
+
+function generateGraph() {
+  const xVar = document.getElementById('xAxisSelect').value;
+  const yVar = document.getElementById('yAxisSelect').value;
+
+  if (!xVar || !yVar) {
+    alert("Please select both X and Y axes.");
+    return;
+  }
+
+  // Get currently filtered dataset
+  const filtered = getFilteredComponents();
+
+  const dataPoints = filtered
+    .filter(c => typeof c[xVar] === 'number' && typeof c[yVar] === 'number')
+    .map(c => ({
+      x: c[xVar],
+      y: c[yVar],
+      label: c.name || c.id
+    }));
+
+  if (dataPoints.length === 0) {
+    alert("No numeric data available for the selected axes.");
+    return;
+  }
+
+  const ctx = document.getElementById('dataChart').getContext('2d');
+
+  // Destroy previous chart
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: `${xVar} vs ${yVar}`,
+        data: dataPoints,
+        pointRadius: 5,
+        pointHoverRadius: 7
+      }]
+    },
+    options: {
+      scales: {
+        x: { title: { display: true, text: xVar } },
+        y: { title: { display: true, text: yVar } }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: context => {
+              const p = context.raw;
+              return `${p.label}: ${xVar}=${p.x}, ${yVar}=${p.y}`;
+            }
+          }
+        },
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+// Helper: returns the same filtered dataset that applyFilters uses
+function getFilteredComponents() {
+  const query = document.getElementById('searchBox').value.toLowerCase();
+
+  const gainMin = parseFloat(document.getElementById('gainMin').value) || -Infinity;
+  const gainMax = parseFloat(document.getElementById('gainMax').value) || Infinity;
+  const snrMin = parseFloat(document.getElementById('snrMin').value) || -Infinity;
+  const snrMax = parseFloat(document.getElementById('snrMax').value) || Infinity;
+  const resMin = parseFloat(document.getElementById('resMin').value) || -Infinity;
+  const resMax = parseFloat(document.getElementById('resMax').value) || Infinity;
+  const diaMin = parseFloat(document.getElementById('diaMin').value) || -Infinity;
+  const diaMax = parseFloat(document.getElementById('diaMax').value) || Infinity;
+  const manufacturerFilter = document.getElementById('manufacturerFilter')?.value || '';
+  const invertingFilter = document.getElementById('invertingFilter')?.value || '';
+
+  return components.filter(comp => {
+    const name = comp.name || "";
+    const matchesText = name.toLowerCase().includes(query);
+
+    const gain = typeof comp.gain === 'number' ? comp.gain : 0;
+    const snr = typeof comp.snr === 'number' ? comp.snr : 0;
+    const res = typeof comp.res === 'number' ? comp.res : 0;
+    const diameter = typeof comp.diameter === 'number' ? comp.diameter : 0;
+    const inverting = comp.inverting || "";
+    const manufacturer = comp.manufacturer || "";
+
+    const withinGain = gain >= gainMin && gain <= gainMax;
+    const withinSNR = snr >= snrMin && snr <= snrMax;
+    const withinResolution = res >= resMin && res <= resMax;
+    const withinDiameter = diameter >= diaMin && diameter <= diaMax;
+    const matchesManufacturer = !manufacturerFilter || manufacturer === manufacturerFilter;
+    const matchesInverting = !invertingFilter || inverting === invertingFilter;
+
+    return matchesText && withinGain && withinSNR &&
+           withinResolution && withinDiameter &&
+           matchesManufacturer && matchesInverting;
+  });
+}
+

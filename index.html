@@ -52,6 +52,43 @@
       </div>
     </div>
   </details>
+  
+  <details>
+  <summary><strong>Graph</strong></summary>
+  <div class="filter-group">
+   <label for="xAxisSelect">X-Axis:</label>
+<select id="xAxisSelect">
+  <option value="">Select variable</option>
+  <option value="snr">SNR</option>
+  <option value="res">Resolution</option>
+  <option value="gainMin">Gain (Min)</option>
+   <option value="gainMax">Gain (Max)</option>
+  <option value="fom">FOM</option>
+  <option value="diameter">Diameter</option>
+  <option value="generation">Generation</option>
+</select>
+
+<label for="yAxisSelect">Y-Axis:</label>
+<select id="yAxisSelect">
+  <option value="">Select variable</option>
+  <option value="snr">SNR</option>
+  <option value="res">Resolution</option>
+  <option value="gainMin">Gain (Min)</option>
+   <option value="gainMax">Gain (Max)</option>
+  <option value="fom">FOM</option>
+  <option value="diameter">Diameter</option>
+  <option value="generation">Generation</option>
+</select>
+
+
+    <button onclick="generateGraph()">Generate Graph</button>
+  </div>
+
+  <canvas id="dataChart" style="max-width: 100%; height: 400px; margin-top: 1em;"></canvas>
+</details>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
   <!-- Dynamic counter -->
   <div id="countContainer" style="margin: 10px 0; font-weight: bold;"></div>
